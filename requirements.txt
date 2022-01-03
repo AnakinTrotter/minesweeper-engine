@@ -3,3 +3,4 @@ Django==4.0
 numpy==1.22.0
 sqlparse==0.4.2
 tzdata==2021.5
+whitenoise==5.3.0
