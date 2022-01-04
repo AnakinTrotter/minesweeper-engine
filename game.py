@@ -3,7 +3,30 @@ import random
 
 # TODO: add time
 
-grid = []
+key = []
+userMap = []
+row, col, bomb = -1
+def displayKey():
+    for i in range(len(key)):
+        for j in range(len(key[i])):
+            if key[i][j] == -1:
+                print("\t"+"x", end="")
+            else:
+                print("\t"+str(int(key[i][j])), end="")
+        print("\n")
+
+def displayMap():
+    for i in range(len(userMap)):
+        for j in range(len(userMap[i])):
+            if userMap[i][j]:
+                if key[i][j] == -1:
+                    print("\t"+"x", end="")
+                else:
+                    print("\t"+str(key[i][j]), end="")
+            else:
+                print("\t"+"-", end="")
+        print("\n")
+
 def generateBombs(bomb):
     bombs = set()
     for i in range(bomb):
@@ -16,24 +39,24 @@ def generateBombs(bomb):
     return list(bombs)
 
 def generateGrid(row, col, bomb):
-    global grid
+    global key
+    global userMap
     # create grid with zeroes
-    grid = np.zeros((row, col))
+    key = np.zeros((row, col))
+    userMap =  np.zeros((row, col), dtype=bool)
     bombs = np.asarray(generateBombs(bomb))
 
     for mine in bombs:
-        i= mine[0]
-        j= mine[1]
+        i,j = mine
 
         pts = [[i-1, j], [i+1, j], [i , j+1], [i , j-1], [i-1, j+1], [i+1, j+1], [i+1, j-1], [i-1, j-1]]
 
         for cols in pts:
             if cols[0]>=0 and cols[0] < row and cols[1]>=0 and cols[1] < col:
-                grid[cols[0]][cols[1]]+=1
+                key[cols[0]][cols[1]]+=1
 
     for i in bombs:
-        grid[i[0]][i[1]] = -1
-        
+        key[i[0]][i[1]] = -1
 
 def prompt(promptType):
     while True:
@@ -57,8 +80,17 @@ def prompt(promptType):
             break
     return value
 
-row = prompt("rows")
-col = prompt("columns")
-bomb = prompt("bombs")
-generateGrid(row, col, bomb)
-print(grid)
+def gameInit():
+    global row, col, bomb
+    row = prompt("rows")
+    col = prompt("columns")
+    bomb = prompt("bombs")
+    generateGrid(row, col, bomb)
+    displayKey() #remove later
+    print("\n")
+    
+    displayMap()
+
+# function to run game: start, while true the guessing,
+# function to check guess, and bfs all the way to the border zeros
+# function to check if the game is over
