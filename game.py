@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-# TODO: add time, checkwin functionality, make sure start doesnt start on a mine
+# TODO: add time
 
 key = []
 user_map = []
@@ -167,13 +167,17 @@ def game_init():
     col = prompt("columns")
     bomb = prompt("bombs")
     generate_grid(row, col, bomb)
-
+    first_run = True
     while True:
         display_key()
         print("\n\n")
         display_map()
-        guess_x, guess_y = prompt_guess()
-        if not check_guess(guess_x, guess_y):
+        guess_r, guess_c = prompt_guess()
+        if first_run:
+            while key[guess_r][guess_c] == -1:
+                generate_grid(row, col, bomb)
+            first_run = False
+        if not check_guess(guess_r, guess_c):
             display_map()
             return False
         if checkWin():
