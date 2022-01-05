@@ -1,13 +1,14 @@
 import numpy as np
 import random
 
-# TODO: add time
+# TODO: add time, checkwin functionality, make sure start doesnt start on a mine
 
 key = []
 user_map = []
 row = -1
 col = -1
 bomb = -1
+tiles_revealed = 0
 def display_key():
     for i in range(len(key)):
         for j in range(len(key[i])):
@@ -112,13 +113,14 @@ def isValid(i, j, visited):
     if (i, j) in visited:
         return False
     return True
+
 def bfs(i,j):
+    global tiles_revealed
     visited = []
     queue = []
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     visited.append((i,j))
     queue.append((i,j))
-
     while queue:
         r,c = queue.pop(0)
         for row_change, col_change in directions:
@@ -126,28 +128,35 @@ def bfs(i,j):
             neighbor_col = c + col_change
             if isValid(neighbor_row, neighbor_col, visited):
                 visited.append((neighbor_row, neighbor_col))
-                # check what value it is, if its a zero u add to the queue, if its -1 dont show, if its a number show and dont add to queue
+                if user_map[neighbor_row][neighbor_col] == True:
+                    continue
                 if key[neighbor_row][neighbor_col] == 0:
+                    tiles_revealed += 1 
                     user_map[neighbor_row][neighbor_col] = True
                     queue.append((neighbor_row, neighbor_col))
                 elif key[neighbor_row][neighbor_col] == -1:
                     continue
                 else:
+                    tiles_revealed += 1 
                     user_map[neighbor_row][neighbor_col] = True
 
-
 def check_guess(i, j):
+    global tiles_revealed
     if key[i][j] == -1:
         user_map[i][j] = True
         return False
     elif key[i][j] == 0:
-        # bfs here
+        user_map[i][j] = True
         bfs(i,j)
-        print("hi")
+        tiles_revealed += 1 
         return True
     else:
         user_map[i][j] = True
+        tiles_revealed += 1 
         return True
+
+def checkWin():
+    return tiles_revealed + bomb == row * col
 
 def check_game_state(guesses):
     return guesses + bomb < row * col
@@ -157,24 +166,26 @@ def game_init():
     row = prompt("rows")
     col = prompt("columns")
     bomb = prompt("bombs")
-    game_state = True
-    guesses = 0
     generate_grid(row, col, bomb)
 
-    while game_state:
+    while True:
+        display_key()
+        print("\n\n")
         display_map()
         guess_x, guess_y = prompt_guess()
         if not check_guess(guess_x, guess_y):
             display_map()
             return False
-        guesses += 1
-        game_state = check_game_state(guesses)
+        if checkWin():
+            display_key()
+            break
         
     return True
     
 if __name__ == "__main__":
-    print("You won") if game_init() else print("L")
-    display_key()
-# function to run game: start, while true the guessing,
-# function to check guess, and bfs all the way to the border zeros
-# function to check if the game is over
+    try:
+        print("You won") if game_init() else print("L")
+    except KeyboardInterrupt:
+        print('\nEnd of Game. Bye Bye!')
+    
+    
