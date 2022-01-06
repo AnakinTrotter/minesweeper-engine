@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from collections import deque
 
 # TODO: add time
 
@@ -110,24 +111,24 @@ def isValid(i, j, visited):
     if not (0 <= i < len(key) and 0 <= j < len(key[0])):
         return False
     # already visited
-    if (i, j) in visited:
+    if visited[i][j]:
         return False
     return True
 
 def bfs(i,j):
     global tiles_revealed
-    visited = []
-    queue = []
+    visited = np.zeros((row, col), dtype=bool)
+    queue = deque()
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-    visited.append((i,j))
+    visited[i][j] = True
     queue.append((i,j))
     while queue:
-        r,c = queue.pop(0)
+        r,c = queue.popleft()
         for row_change, col_change in directions:
             neighbor_row = r + row_change
             neighbor_col = c + col_change
             if isValid(neighbor_row, neighbor_col, visited):
-                visited.append((neighbor_row, neighbor_col))
+                visited[neighbor_row][neighbor_col] = True
                 if user_map[neighbor_row][neighbor_col] == True:
                     continue
                 if key[neighbor_row][neighbor_col] == 0:
