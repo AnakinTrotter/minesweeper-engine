@@ -106,7 +106,7 @@ def prompt_guess():
             break
     return x, y
 
-def isValid(i, j, visited):
+def is_valid(i, j, visited):
     # in bounds
     if not (0 <= i < len(key) and 0 <= j < len(key[0])):
         return False
@@ -127,7 +127,7 @@ def bfs(i,j):
         for row_change, col_change in directions:
             neighbor_row = r + row_change
             neighbor_col = c + col_change
-            if isValid(neighbor_row, neighbor_col, visited):
+            if is_valid(neighbor_row, neighbor_col, visited):
                 visited[neighbor_row][neighbor_col] = True
                 if user_map[neighbor_row][neighbor_col] == True:
                     continue
@@ -156,11 +156,8 @@ def check_guess(i, j):
         tiles_revealed += 1 
         return True
 
-def checkWin():
+def check_win():
     return tiles_revealed + bomb == row * col
-
-def check_game_state(guesses):
-    return guesses + bomb < row * col
 
 def game_init():
     global row, col, bomb
@@ -181,7 +178,7 @@ def game_init():
         if not check_guess(guess_r, guess_c):
             display_map()
             return False
-        if checkWin():
+        if check_win():
             display_key()
             break
         
