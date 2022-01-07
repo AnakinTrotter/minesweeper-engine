@@ -1,1 +1,17 @@
-Working as intended!
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static './style.css' %}">
+<button id="generate-grid">click to generate</button>
+<h1>{{test_stuff}}</h1>
+<form action="generate" method="post">
+    <!-- change type later? -->
+    {% csrf_token %}
+    Enter rows : <input type = "text" name = "row-input"><br> 
+    Enter cols : <input type = "text" name = "col-input"><br> 
+    Enter bombs : <input type = "text" name = "bomb-input"><br> 
+    <input type="submit">
+</form>
+<script src="{% static './index.js' %}"></script>
+
+{% endblock %}
