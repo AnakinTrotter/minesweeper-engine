@@ -159,11 +159,7 @@ def check_guess(i, j):
 def check_win():
     return tiles_revealed + bomb == row * col
 
-def game_init():
-    global row, col, bomb
-    row = prompt("rows")
-    col = prompt("columns")
-    bomb = prompt("bombs")
+def game_init(row, col, bomb):
     generate_grid(row, col, bomb)
     first_run = True
     while True:
@@ -186,7 +182,11 @@ def game_init():
     
 if __name__ == "__main__":
     try:
-        print("You won") if game_init() else print("L")
+        
+        row = prompt("rows")
+        col = prompt("columns")
+        bomb = prompt("bombs")
+        print("You won") if game_init(row, col, bomb) else print("L")
     except KeyboardInterrupt:
         print('\nEnd of Game. Bye Bye!')
     
