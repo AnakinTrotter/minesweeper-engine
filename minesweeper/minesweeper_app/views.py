@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
-from django.http import JsonResponse
-# Notes for KAM: response to browser
+# from django.http import HttpResponse
+# from django.http import JsonResponse
+# import json
+
 
 def index(request):
     return render(request, 'index.html')
@@ -10,10 +11,22 @@ def index(request):
 def test(request):
     return render(request, 'test.html')
 
-@csrf_exempt 
 def gen_grid(request):
-    print(request)
-    print("hihi")
-    args = {"test_stuff": "hellotest"}
-    return JsonResponse(args)
+    row = int(request.POST["row-input"])
+    col = int(request.POST["col-input"])
+    bomb = int(request.POST["bomb-input"])
+    args = {
+        "row": row,
+        "col": col,
+        "bomb": bomb,
+    }
+    # maybe return a grid idk or return some type of redirect 
+    return render(request, "grid.html", args)
+
+
+# cool way of getting req.params from js dont delete may use for later
+# @csrf_exempt 
+# def gen_grid(request):
+#     var = json.loads(request.body.decode("utf-8"))
+#     return JsonResponse(var)
     # return render(request, 'index.html',args )
