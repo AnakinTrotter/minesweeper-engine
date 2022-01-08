@@ -7,10 +7,14 @@ from collections import deque
 key = []
 user_map = []
 engine_map = []
+dirs = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
 row = -1
 col = -1
 bomb = -1
 tiles_revealed = 0
+
+def backtrack():
+    pass
 
 def solve():
     for i in range(len(user_map)):
@@ -18,19 +22,16 @@ def solve():
             if user_map[i][j] == True:
                 if key[i][j] >= 0 and key[i][j] <= 8:
                      engine_map[i][j] = 0
+                checked_tiles = []
+                for dir in dirs:
+                    i1, j1 = i + dir[0], j + dir[1]
+                    if i1 >= 0 and i1 < len(user_map) and j1 >= 0 and j1 < len(user_map[i1]) and user_map[i1][j1] == False:
+                        checked_tiles.append([i1, j1])
+                if len(checked_tiles) == key[i][j]:
+                    for tile in checked_tiles:
+                        engine_map[tile[0]][tile[1]] = 1.0
                 else:
-                    checked_tiles = []
-                    directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
-                    for dir in directions:
-                        i1, j1 = i + dir[0], j + dir[1]
-                        if i1 >= 0 and i1 < len(user_map) and j1 >= 0 and j1 < len(user_map[i1]) and user_map[i1][j1] == False:
-                            checked_tiles.append([i1, j1])
-                    if len(checked_tiles) == key[i][j]:
-                        for tile in checked_tiles:
-                            engine_map[tile[0]][tile[1]] = 1.0
-                    else:
-                        # do some crazy case generation shit
-                        pass         
+                    backtrack()        
     print("\n")
     for i in range(len(engine_map)):
         for j in range(len(engine_map[i])):
