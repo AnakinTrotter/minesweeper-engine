@@ -6,10 +6,38 @@ from collections import deque
 
 key = []
 user_map = []
+engine_map = []
 row = -1
 col = -1
 bomb = -1
 tiles_revealed = 0
+
+def solve():
+    for i in range(len(user_map)):
+        for j in range(len(user_map[i])):
+            if user_map[i][j] == True:
+                if key[i][j] >= 0 and key[i][j] <= 8:
+                     engine_map[i][j] = 0
+                else:
+                    checked_tiles = []
+                    directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
+                    for dir in directions:
+                        i1, j1 = i + dir[0], j + dir[1]
+                        if i1 >= 0 and i1 < len(user_map) and j1 >= 0 and j1 < len(user_map[i1]) and user_map[i1][j1] == False:
+                            checked_tiles.append([i1, j1])
+                    if len(checked_tiles) == key[i][j]:
+                        for tile in checked_tiles:
+                            engine_map[tile[0]][tile[1]] = 1.0
+                    else:
+                        # do some crazy case generation shit
+                        pass         
+    print("\n")
+    for i in range(len(engine_map)):
+        for j in range(len(engine_map[i])):
+            print("\t"+str(engine_map[i][j]), end="")
+        print("\n")
+    print("\n")
+
 def display_key():
     for i in range(len(key)):
         for j in range(len(key[i])):
@@ -45,9 +73,11 @@ def generate_bombs(bomb):
 def generate_grid(row, col, bomb):
     global key
     global user_map
+    global engine_map
     # create grid with zeroes
     key = np.zeros((row, col))
     user_map =  np.zeros((row, col), dtype=bool)
+    engine_map = np.full((row, col), -1, dtype=np.double)
     bombs = np.asarray(generate_bombs(bomb))
 
     for mine in bombs:
@@ -85,6 +115,7 @@ def prompt(prompt_type):
     return value
 
 def prompt_guess():
+    solve()
     while True:
         try:
             x = int(input("Enter row (0 index):  "))
@@ -182,7 +213,6 @@ def game_init(row, col, bomb):
     
 if __name__ == "__main__":
     try:
-        
         row = prompt("rows")
         col = prompt("columns")
         bomb = prompt("bombs")
