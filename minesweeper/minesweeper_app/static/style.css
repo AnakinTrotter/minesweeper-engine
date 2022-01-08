@@ -1,0 +1,26 @@
+
+.grid-container{
+    display: flex;
+    margin-left: 20px;
+    flex-direction: column;
+    justify-content: center;
+    /* border: 2px solid red; */
+    min-width: 80%;
+    overflow-x: visible;
+}
+
+
+.grid-row{
+    display: flex;
+    justify-content: center;
+}
+.grid-cell{
+    text-align: center;
+    min-width: 4%;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* background-color: red; */
+    aspect-ratio: 1;
+}
