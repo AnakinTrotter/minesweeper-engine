@@ -37,6 +37,8 @@ def display_map():
         print("\n")
 
 
+"""Prints to the console what the engine sees with mines marked using flags"""
+
 def display_engine_map():
     for i in range(len(engine_map)):
         for j in range(len(engine_map[i])):
@@ -82,13 +84,17 @@ def generate_grid(row, col, bomb):
         key[i[0]][i[1]] = -1
 
 
+"""Formats the engine map to something the engine can solve then returns list of mine coordinates"""
+
 def locate_mines():
     global engine_map
+    # float type is needed to support NaN
     engine_map = np.zeros((row, col), dtype=float)
     for i in range(row):
         for j in range(col):
             if user_map[i][j] == True:
                 if key[i][j] == -1:
+                    # mines are marked by values greater than 8
                     engine_map[i][j] = 999
                 elif key[i][j] >= 0 and key[i][j] <= 8:
                     engine_map[i][j] = key[i][j]

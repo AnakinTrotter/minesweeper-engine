@@ -1,3 +1,9 @@
+"""
+Contains all the functionality for finding mines plus a testing framework
+Uses backtracking for casework and to generate probabilities for guessing
+Currently requires mines to be flagged in order to find additional mines
+"""
+
 import numpy as np
 from collections import deque
 
