@@ -7,6 +7,7 @@ import engine
 
 key = []
 user_map = []
+flag_map = []
 engine_map = []
 row = -1
 col = -1
@@ -27,7 +28,9 @@ def display_key():
 def display_map():
     for i in range(len(user_map)):
         for j in range(len(user_map[i])):
-            if user_map[i][j]:
+            if flag_map[i][j]:
+                print("\t"+"🚩", end="")
+            elif user_map[i][j]:
                 if key[i][j] == -1:
                     print("\t"+"💥", end="")
                 else:
@@ -51,6 +54,16 @@ def display_engine_map():
                 print("\t"+"?", end="")
         print("\n")
 
+
+"""Returns true and places a flag if a flag can be placed on the given tile"""
+
+def place_flag(i, j):
+    global flag_map
+    if flag_map[i][j] or user_map[i][j]:
+        return False
+    flag_map[i][j] = True
+    return True
+
 def generate_bombs(bomb):
     bombs = set()
     for i in range(bomb):
@@ -66,9 +79,11 @@ def generate_bombs(bomb):
 def generate_grid(row, col, bomb):
     global key
     global user_map
+    global flag_map
     # create grid with zeroes
     key = np.zeros((row, col))
     user_map =  np.zeros((row, col), dtype=bool)
+    flag_map = np.zeros((row, col), dtype=bool)
     bombs = np.asarray(generate_bombs(bomb))
 
     for mine in bombs:
@@ -92,20 +107,22 @@ def locate_mines():
     engine_map = np.zeros((row, col), dtype=float)
     for i in range(row):
         for j in range(col):
-            if user_map[i][j] == True:
-                if key[i][j] == -1:
-                    # mines are marked by values greater than 8
-                    engine_map[i][j] = 999
-                elif key[i][j] >= 0 and key[i][j] <= 8:
+            if user_map[i][j]:
+                if key[i][j] >= 0 and key[i][j] <= 8:
                     engine_map[i][j] = key[i][j]
             else:
                 engine_map[i][j] = np.nan
+    for i in range(row):
+        for j in range(col):
+            if flag_map[i][j]:
+                engine.add_adj(i, j, -1, engine_map)
     engine.solve(engine_map)
     mines = []
     for i in range(len(engine_map)):
         for j in range(len(engine_map)):
             if not np.isnan(engine_map[i][j]) and engine_map[i][j] > 8:
                 mines.append((i, j))
+                place_flag(i, j)
     return mines
 
 
@@ -155,6 +172,19 @@ def prompt_guess():
     return x, y
 
 
+def prompt_flag():
+    while True:
+        try:
+            flag = input("Place a flag here? (y/n):  ")
+        except ValueError:
+            print("Sorry, I didn't understand that.")
+            continue
+        if flag == "y":
+            return True
+        elif flag == "n":
+            return False
+
+
 def is_valid(i, j, visited):
     # in bounds
     if not (0 <= i < len(key) and 0 <= j < len(key[0])):
@@ -194,7 +224,10 @@ def bfs(i,j):
 
 def check_guess(i, j):
     global tiles_revealed
-    if key[i][j] == -1:
+    if flag_map[i][j] == True:
+        flag_map[i][j] = False
+        return False
+    elif key[i][j] == -1:
         user_map[i][j] = True
         return False
     elif key[i][j] == 0:
@@ -223,10 +256,13 @@ def game_init(row, col, bomb):
         print("\n\n")
         display_map()
         guess_r, guess_c = prompt_guess()
+        flag = prompt_flag()
         if first_run:
             while key[guess_r][guess_c] == -1:
                 generate_grid(row, col, bomb)
             first_run = False
+        if flag and place_flag(guess_r, guess_c):
+            continue
         if not check_guess(guess_r, guess_c):
             display_map()
             return False
