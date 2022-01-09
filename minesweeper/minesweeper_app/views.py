@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
+from . import game
+# from django.views.decorators.csrf import csrf_exempt
 # from django.http import HttpResponse
 # from django.http import JsonResponse
 # import json
@@ -15,12 +16,21 @@ def gen_grid(request):
     row = int(request.POST["row-input"])
     col = int(request.POST["col-input"])
     bomb = int(request.POST["bomb-input"])
+    # maybe have some user validation
+    game.set_row(row)
+    game.set_col(col)
+    game.set_bomb(bomb)
+    game.generate_grid(row, col, bomb)
+    user_map = game.get_user_map()
     args = {
         "row": row,
+        "row_len": range(row),
         "col": col,
+        "col_len": range(col),
         "bomb": bomb,
+        "user_map": user_map
     }
-    # maybe return a grid idk or return some type of redirect 
+    
     return render(request, "grid.html", args)
 
 

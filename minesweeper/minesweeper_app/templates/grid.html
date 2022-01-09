@@ -1,9 +1,35 @@
 {% load static %}
 {% block content %}
 
-<link rel="stylesheet" href="{% static './style.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 <h1>row: {{row}}</h1>
 <h1>col: {{col}}</h1>
 <h1>bomb: {{bomb}}</h1>
+
+<div class="grid-container" >
+{% comment %} {% for i in row_len %}
+    <div class="grid-row">
+        {% for j in col_len %}
+            <div class="grid-cell">{{ key[i][j] }}</div>
+        {% endfor %}
+    </div>
+{% endfor %} {% endcomment %}
+
+{% for i in user_map %}
+    <div class="grid-row">
+        {% for j in i %}
+            <div class="grid-cell">{{ j }}</div>
+            {% comment %} {% if j %}
+                <div class="grid-cell">{{ j }}</div>
+            {% else %}
+                <div class="grid-cell">--</div>
+            {% endif %} {% endcomment %}
+        {% endfor %}
+    </div>
+{% endfor %}
+</div>
+  
+
+
 
 {% endblock %}
