@@ -97,9 +97,9 @@ def display_engine_map():
 
 def place_flag(i, j):
     global flag_map
-    if flag_map[i][j] or user_map[i][j]:
+    if user_map[i][j]:
         return False
-    flag_map[i][j] = True
+    flag_map[i][j] = not flag_map[i][j]
     return True
 
 def generate_bombs(bomb):
@@ -204,6 +204,8 @@ def prompt_guess():
             continue
         else:
             if user_map[x][y] == True:
+                if flag_map[x][y] == True:
+                    break
                 print("Location already cleared")
                 continue
             break
