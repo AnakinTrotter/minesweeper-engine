@@ -93,7 +93,7 @@ def display_engine_map():
         print("\n")
 
 
-"""Returns true and places a flag if a flag can be placed on the given tile"""
+"""Returns true and places/removes a flag if given tile is not revealed"""
 
 def place_flag(i, j):
     global flag_map
