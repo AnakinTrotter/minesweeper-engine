@@ -10,6 +10,44 @@ row = -1
 col = -1
 bomb = -1
 tiles_revealed = 0
+
+def get_key():
+    return key
+# getting processed map
+def get_user_map():
+    processed_map = np.zeros((row, col), dtype=str)
+    for i in range(len(user_map)):
+        for j in range(len(user_map[i])):
+            if user_map[i][j]:
+                if key[i][j] == -1:
+                    processed_map[i][j] = "💥"
+                else:
+                    processed_map[i][j] = str(int(key[i][j]))
+            else:
+                processed_map[i][j] = "--"
+    return processed_map
+
+def get_row():
+    return row
+def get_col():
+    return col
+def get_bomb():
+    return bomb
+def set_key(arr):
+    global key
+    key = arr
+def set_user_map(arr):
+    global user_map
+    user_map = arr
+def set_row(r):
+    global row
+    row = r
+def set_col(c):
+    global col
+    col = c
+def set_bomb(b):
+    global bomb
+    bomb = b 
 def display_key():
     for i in range(len(key)):
         for j in range(len(key[i])):
