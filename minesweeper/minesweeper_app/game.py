@@ -6,10 +6,13 @@ from collections import deque
 
 key = []
 user_map = []
+flag_map = []
+engine_map = []
 row = -1
 col = -1
 bomb = -1
 tiles_revealed = 0
+
 
 def get_key():
     return key
@@ -48,6 +51,7 @@ def set_col(c):
 def set_bomb(b):
     global bomb
     bomb = b 
+
 def display_key():
     for i in range(len(key)):
         for j in range(len(key[i])):
@@ -57,10 +61,13 @@ def display_key():
                 print("\t"+str(int(key[i][j])), end="")
         print("\n")
 
+
 def display_map():
     for i in range(len(user_map)):
         for j in range(len(user_map[i])):
-            if user_map[i][j]:
+            if flag_map[i][j]:
+                print("\t"+"🚩", end="")
+            elif user_map[i][j]:
                 if key[i][j] == -1:
                     print("\t"+"💥", end="")
                 else:
@@ -68,6 +75,31 @@ def display_map():
             else:
                 print("\t"+"-", end="")
         print("\n")
+
+
+"""Prints to the console what the engine sees with mines marked using flags"""
+
+def display_engine_map():
+    for i in range(len(engine_map)):
+        for j in range(len(engine_map[i])):
+            if not np.isnan(engine_map[i][j]):
+                if engine_map[i][j] > 8:
+                    print("\t"+"🚩", end="")
+                else:
+                    print("\t"+str(int(engine_map[i][j])), end="")
+            else:
+                print("\t"+"?", end="")
+        print("\n")
+
+
+"""Returns true and places/removes a flag if given tile is not revealed"""
+
+def place_flag(i, j):
+    global flag_map
+    if user_map[i][j]:
+        return False
+    flag_map[i][j] = not flag_map[i][j]
+    return True
 
 def generate_bombs(bomb):
     bombs = set()
@@ -80,12 +112,15 @@ def generate_bombs(bomb):
         bombs.add((bomb_row, bomb_col))
     return list(bombs)
 
+
 def generate_grid(row, col, bomb):
     global key
     global user_map
+    global flag_map
     # create grid with zeroes
     key = np.zeros((row, col))
     user_map =  np.zeros((row, col), dtype=bool)
+    flag_map = np.zeros((row, col), dtype=bool)
     bombs = np.asarray(generate_bombs(bomb))
 
     for mine in bombs:
@@ -99,6 +134,34 @@ def generate_grid(row, col, bomb):
 
     for i in bombs:
         key[i[0]][i[1]] = -1
+
+
+"""Formats the engine map to something the engine can solve then returns list of mine coordinates"""
+
+def locate_mines():
+    global engine_map
+    # float type is needed to support NaN
+    engine_map = np.zeros((row, col), dtype=float)
+    for i in range(row):
+        for j in range(col):
+            if user_map[i][j]:
+                if key[i][j] >= 0 and key[i][j] <= 8:
+                    engine_map[i][j] = key[i][j]
+            else:
+                engine_map[i][j] = np.nan
+    for i in range(row):
+        for j in range(col):
+            if flag_map[i][j]:
+                engine.add_adj(i, j, -1, engine_map)
+    engine.solve(engine_map)
+    mines = []
+    for i in range(len(engine_map)):
+        for j in range(len(engine_map)):
+            if not np.isnan(engine_map[i][j]) and engine_map[i][j] > 8:
+                mines.append((i, j))
+                place_flag(i, j)
+    return mines
+
 
 def prompt(prompt_type):
     while True:
@@ -122,6 +185,7 @@ def prompt(prompt_type):
             break
     return value
 
+
 def prompt_guess():
     while True:
         try:
@@ -139,10 +203,26 @@ def prompt_guess():
             continue
         else:
             if user_map[x][y] == True:
+                if flag_map[x][y] == True:
+                    break
                 print("Location already cleared")
                 continue
             break
     return x, y
+
+
+def prompt_flag():
+    while True:
+        try:
+            flag = input("Place a flag here? (y/n):  ")
+        except ValueError:
+            print("Sorry, I didn't understand that.")
+            continue
+        if flag == "y":
+            return True
+        elif flag == "n":
+            return False
+
 
 def is_valid(i, j, visited):
     # in bounds
@@ -152,6 +232,7 @@ def is_valid(i, j, visited):
     if visited[i][j]:
         return False
     return True
+
 
 def bfs(i,j):
     global tiles_revealed
@@ -179,9 +260,13 @@ def bfs(i,j):
                     tiles_revealed += 1 
                     user_map[neighbor_row][neighbor_col] = True
 
+
 def check_guess(i, j):
     global tiles_revealed
-    if key[i][j] == -1:
+    if flag_map[i][j] == True:
+        flag_map[i][j] = False
+        return False
+    elif key[i][j] == -1:
         user_map[i][j] = True
         return False
     elif key[i][j] == 0:
@@ -194,31 +279,41 @@ def check_guess(i, j):
         tiles_revealed += 1 
         return True
 
+
 def check_win():
     return tiles_revealed + bomb == row * col
 
+
 def game_init(row, col, bomb):
+    global engine_map
     generate_grid(row, col, bomb)
     first_run = True
     while True:
         display_key()
+        # print("\n\n")
+        # display_engine_map()
         print("\n\n")
         display_map()
         guess_r, guess_c = prompt_guess()
+        flag = prompt_flag()
         if first_run:
             while key[guess_r][guess_c] == -1:
                 generate_grid(row, col, bomb)
             first_run = False
+        if flag and place_flag(guess_r, guess_c):
+            continue
         if not check_guess(guess_r, guess_c):
             display_map()
             return False
         if check_win():
             display_key()
             break
-        
+        print("MINE(S) FOUND AT:" + str(locate_mines()))
     return True
     
+
 if __name__ == "__main__":
+    import engine
     try:
         
         row = prompt("rows")
@@ -227,5 +322,5 @@ if __name__ == "__main__":
         print("You won") if game_init(row, col, bomb) else print("L")
     except KeyboardInterrupt:
         print('\nEnd of Game. Bye Bye!')
-    
-    
+else:
+    from minesweeper_app import engine
