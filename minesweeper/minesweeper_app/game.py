@@ -1,7 +1,6 @@
 import numpy as np
 import random
 from collections import deque
-import engine
 
 # TODO: add time
 
@@ -314,6 +313,7 @@ def game_init(row, col, bomb):
     
 
 if __name__ == "__main__":
+    import engine
     try:
         
         row = prompt("rows")
@@ -322,3 +322,5 @@ if __name__ == "__main__":
         print("You won") if game_init(row, col, bomb) else print("L")
     except KeyboardInterrupt:
         print('\nEnd of Game. Bye Bye!')
+else:
+    from minesweeper_app import engine
