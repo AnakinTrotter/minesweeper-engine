@@ -1,15 +1,19 @@
 import numpy as np
 import random
 from collections import deque
+import engine
 
 # TODO: add time
 
 key = []
 user_map = []
+engine_map = []
 row = -1
 col = -1
 bomb = -1
 tiles_revealed = 0
+
+
 def display_key():
     for i in range(len(key)):
         for j in range(len(key[i])):
@@ -18,6 +22,7 @@ def display_key():
             else:
                 print("\t"+str(int(key[i][j])), end="")
         print("\n")
+
 
 def display_map():
     for i in range(len(user_map)):
@@ -31,6 +36,19 @@ def display_map():
                 print("\t"+"-", end="")
         print("\n")
 
+
+def display_engine_map():
+    for i in range(len(engine_map)):
+        for j in range(len(engine_map[i])):
+            if not np.isnan(engine_map[i][j]):
+                if engine_map[i][j] > 8:
+                    print("\t"+"🚩", end="")
+                else:
+                    print("\t"+str(int(engine_map[i][j])), end="")
+            else:
+                print("\t"+"?", end="")
+        print("\n")
+
 def generate_bombs(bomb):
     bombs = set()
     for i in range(bomb):
@@ -41,6 +59,7 @@ def generate_bombs(bomb):
             bomb_col = random.randint(0, col-1)
         bombs.add((bomb_row, bomb_col))
     return list(bombs)
+
 
 def generate_grid(row, col, bomb):
     global key
@@ -61,6 +80,28 @@ def generate_grid(row, col, bomb):
 
     for i in bombs:
         key[i[0]][i[1]] = -1
+
+
+def locate_mines():
+    global engine_map
+    engine_map = np.zeros((row, col), dtype=float)
+    for i in range(row):
+        for j in range(col):
+            if user_map[i][j] == True:
+                if key[i][j] == -1:
+                    engine_map[i][j] = 999
+                elif key[i][j] >= 0 and key[i][j] <= 8:
+                    engine_map[i][j] = key[i][j]
+            else:
+                engine_map[i][j] = np.nan
+    engine.solve(engine_map)
+    mines = []
+    for i in range(len(engine_map)):
+        for j in range(len(engine_map)):
+            if not np.isnan(engine_map[i][j]) and engine_map[i][j] > 8:
+                mines.append((i, j))
+    return mines
+
 
 def prompt(prompt_type):
     while True:
@@ -84,6 +125,7 @@ def prompt(prompt_type):
             break
     return value
 
+
 def prompt_guess():
     while True:
         try:
@@ -106,6 +148,7 @@ def prompt_guess():
             break
     return x, y
 
+
 def is_valid(i, j, visited):
     # in bounds
     if not (0 <= i < len(key) and 0 <= j < len(key[0])):
@@ -114,6 +157,7 @@ def is_valid(i, j, visited):
     if visited[i][j]:
         return False
     return True
+
 
 def bfs(i,j):
     global tiles_revealed
@@ -141,6 +185,7 @@ def bfs(i,j):
                     tiles_revealed += 1 
                     user_map[neighbor_row][neighbor_col] = True
 
+
 def check_guess(i, j):
     global tiles_revealed
     if key[i][j] == -1:
@@ -156,14 +201,19 @@ def check_guess(i, j):
         tiles_revealed += 1 
         return True
 
+
 def check_win():
     return tiles_revealed + bomb == row * col
 
+
 def game_init(row, col, bomb):
+    global engine_map
     generate_grid(row, col, bomb)
     first_run = True
     while True:
         display_key()
+        # print("\n\n")
+        # display_engine_map()
         print("\n\n")
         display_map()
         guess_r, guess_c = prompt_guess()
@@ -177,9 +227,10 @@ def game_init(row, col, bomb):
         if check_win():
             display_key()
             break
-        
+        print("MINE(S) FOUND AT:" + str(locate_mines()))
     return True
     
+
 if __name__ == "__main__":
     try:
         

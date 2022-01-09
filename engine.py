@@ -13,13 +13,13 @@ def solve(board):
     m, n = len(board), len(board[0])
     for i in range(m):
         for j in range(n):
-            if board[i][j] is None or board[i][j] <= 0 or board[i][j] > 8:
+            if np.isnan(board[i][j]) or board[i][j] <= 0 or board[i][j] > 8:
                 continue
             open_tiles = []
             for dir in dirs:
                 i1, j1 = i + dir[0], j + dir[1]
                 if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n:
-                    if board[i1][j1] is None and can_put_mine(i1, j1, board):
+                    if np.isnan(board[i1][j1]) and can_put_mine(i1, j1, board):
                         open_tiles.append([i1, j1])
             # handle the trivial case
             if len(open_tiles) == board[i][j]:
@@ -33,7 +33,7 @@ def solve(board):
     visited = np.zeros((m, n), dtype=bool)
     for i in range(m):
         for j in range(n):
-            if visited[i][j] == False and board[i][j] is None and is_border_tile(i, j, board):
+            if visited[i][j] == False and np.isnan(board[i][j]) and is_border_tile(i, j, board):
                 edge = []
                 q = deque()
                 q.appendleft((i, j))
@@ -44,7 +44,7 @@ def solve(board):
                     r, c = q.popleft()
                     for dir in dirs:
                         i1, j1 = r + dir[0], c + dir[1]
-                        if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n and board[i1][j1] is None:
+                        if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n and np.isnan(board[i1][j1]):
                             if visited[i1][j1] == False and is_border_tile(i1, j1, board):
                                 q.appendleft((i1, j1))
                                 visited[i1][j1] = True
@@ -59,7 +59,7 @@ def solve(board):
                     counts = np.zeros((len(edge)), dtype=int)
                     for solution in solutions:
                         for x in range(len(edge)):
-                            if solution[edge[x][0]][edge[x][1]] is not None:
+                            if not np.isnan(solution[edge[x][0]][edge[x][1]]):
                                 if solution[edge[x][0]][edge[x][1]] > 8:
                                     counts[x] += 1
                     ans = 0
@@ -90,7 +90,7 @@ def backtrack(idx, arr, ans, board):
         add_adj(i, j, -1, board)
         backtrack(idx + 1, arr, ans, board)
         # undo last step (backtrack)
-        board[i][j] = None
+        board[i][j] = np.nan
         add_adj(i, j, 1, board)
     # Case 2: skip tile
     backtrack(idx + 1, arr, ans, board)
@@ -106,7 +106,7 @@ def is_border_solved(arr, board):
         for dir in dirs:
             i1, j1 = i + dir[0], j + dir[1]
             if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n:
-                if board[i1][j1] is not None and board[i1][j1] >= 1 and board[i1][j1] <= 8:
+                if not np.isnan(board[i1][j1]) and board[i1][j1] >= 1 and board[i1][j1] <= 8:
                     return False
     return True
 
@@ -119,7 +119,7 @@ def is_border_tile(i, j, board):
     for dir in dirs:
         i1, j1 = i + dir[0], j + dir[1]
         if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n:
-            if board[i1][j1] is not None and board[i1][j1] > 0 and board[i1][j1] <= 8:
+            if not np.isnan(board[i1][j1]) and board[i1][j1] > 0 and board[i1][j1] <= 8:
                 return True
     return False
 
@@ -131,7 +131,7 @@ def can_put_mine(i, j, board):
     m, n = len(board), len(board[0])
     for dir in dirs:
         i1, j1 = i + dir[0], j + dir[1]
-        if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n and board[i1][j1] is not None:
+        if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n and not np.isnan(board[i1][j1]):
             if board[i1][j1] <= 0:
                 return False
     return True
@@ -144,7 +144,7 @@ def add_adj(i, j, k, board):
     m, n = len(board), len(board[0])
     for dir in dirs:
         i1, j1 = i + dir[0], j + dir[1]
-        if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n and board[i1][j1] is not None:
+        if i1 >= 0 and i1 < m and j1 >= 0 and j1 < n and not np.isnan(board[i1][j1]):
             board[i1][j1] += k
 
 
@@ -154,7 +154,7 @@ def print_board(board):
     print("\n")
     for i in range(len(board)):
         for j in range(len(board[i])):
-            if board[i][j] is None:
+            if np.isnan(board[i][j]):
                 print("\t?", end="")
             elif board[i][j] > 8:
                 print("\t🚩", end="")
@@ -177,7 +177,7 @@ def do_turns(x, board):
     mines = []
     for i in range(m):
         for j in range(n):
-            if board[i][j] is not None and board[i][j] > 8:
+            if not np.isnan(board[i][j]) and board[i][j] > 8:
                 mines.append((i, j))
     print(mines)
 
@@ -186,9 +186,9 @@ if __name__ == "__main__":
     # edit this board to change the test
     board = np.array(
         [
-            [1, None, None, None, None, None, 1],
-            [1, 2, 4, None, 4, 2, 1],
-            [0, 0, 1, None, 1, 0, 0],
+            [1, np.nan, np.nan, np.nan, np.nan, np.nan, 1],
+            [1, 2, 4, np.nan, 4, 2, 1],
+            [0, 0, 1, np.nan, 1, 0, 0],
         ]
     )
     do_turns(6, board)
