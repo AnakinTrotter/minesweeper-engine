@@ -6,5 +6,6 @@ from . import views
 
 urlpatterns = [
     path('', views.index),
-    path("generate-grid", views.gen_grid)
+    path("generate-grid", views.gen_grid),
+    path("add-point", views.add_point)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

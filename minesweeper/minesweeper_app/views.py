@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from . import game
-# from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt
 # from django.http import HttpResponse
-# from django.http import JsonResponse
-# import json
+from django.http import JsonResponse
+import json
 
 
 def index(request):
@@ -24,18 +24,32 @@ def gen_grid(request):
     user_map = game.get_user_map()
     args = {
         "row": row,
-        "row_len": range(row),
         "col": col,
-        "col_len": range(col),
         "bomb": bomb,
         "user_map": user_map
     }
     
     return render(request, "grid.html", args)
+    
+@csrf_exempt 
+def add_point(request):
+    var = json.loads(request.body.decode("utf-8"))
+    game_over = not game.check_guess(int(var.get("row")), int(var.get("col")))
+    win = False
+    if not game_over:
+        game_over = game.check_win()
+        win = True
+    args = {
+        "user_map": game.get_user_map().tolist(),
+        "game_over": game_over,
+        "win": win
+    }
+    # return render(request, "grid.html", args)
+    return JsonResponse(args)
 
 
 # cool way of getting req.params from js dont delete may use for later
-# @csrf_exempt 
+
 # def gen_grid(request):
 #     var = json.loads(request.body.decode("utf-8"))
 #     return JsonResponse(var)
