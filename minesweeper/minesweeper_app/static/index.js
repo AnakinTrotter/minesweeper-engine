@@ -23,3 +23,10 @@
 //       const obj = JSON.parse('{"row":5, "col":5, "bomb":10}');
 //       getGrid("/generate", obj);
 //   };
+
+
+$(".grid-cell").click(function() {
+    var row = $(this).parent().attr('row-num');
+    var col = $(this).attr('col-num');
+    console.log(row, col)
+});
