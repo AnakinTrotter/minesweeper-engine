@@ -40,7 +40,7 @@ def add_point(request):
     game_over = not game.check_guess(row, col)
     # first check to see if its the first point clicked, if so you would generate the grid until you get a good one
     if game.get_tiles_revealed() == 0:
-        while not game_over:
+        while game_over:
             game.generate_grid(game.get_row(), game.get_col(), game.get_bomb())
             game_over = not game.check_guess(row, col)
     win = False
