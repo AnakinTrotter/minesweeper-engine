@@ -6,10 +6,10 @@ function renderGrid(arr) {
         .each(function () {
             $(this).children()
                 .each(function () {
-                    console.log(i, j);
-                    var row = $(this).parent().attr('row-num');
-                    var col = $(this).attr('col-num');
-                    console.log("id:  ", row, col)
+                    // console.log(i, j);
+                    // var row = $(this).parent().attr('row-num');
+                    // var col = $(this).attr('col-num');
+                    // console.log("id:  ", row, col)
                     $(this).text(arr[i][j]);
                     j++;
                 })
@@ -30,9 +30,9 @@ async function addPoint(url, data) {
         });
         let res = await response.json();
         console.log(res);
-
-        if(data.game_over){
-            if(!data.win)
+        
+        if(res.game_over){
+            if(!res.win)
                 alert("Game Over: L");
             else
                 alert("Nice");
@@ -50,6 +50,6 @@ $(".grid-cell").click(function () {
     var col = $(this).attr('col-num');
     // add flag type later idk
     const obj = { "row": row, "col": col, "type": "click" }
-    console.log(row, col)
+    // console.log(row, col)
     addPoint("/add-point", obj)
 });
