@@ -6,7 +6,9 @@ function renderGrid(arr) {
         .each(function () {
             $(this).children()
                 .each(function () {
-                    $(this).text(arr[i][j]);
+                    if($(this).text() != "🚩"){
+                        $(this).text(arr[i][j]);
+                    }
                     j++;
                 })
             i++;
@@ -14,6 +16,16 @@ function renderGrid(arr) {
         });
 }
 
+function flagCell(row, col){
+    let cell = $(".grid-container").find(`[row-num ='${row}']`).find(`[col-num ='${col}']`)
+    if(cell.text()=="🚩"){
+        cell.text("-")
+    }
+    else{
+        cell.text("🚩");
+    }
+    
+}
 function replaceBomb(arr){
     for (let i = 0; i < arr.length; i++) {
         for(let j = 0; j< arr[i].length; j++){
@@ -55,12 +67,24 @@ async function addPoint(url, data) {
     }
 }
 
-// onClick handler for each cell, will create server call to tell the server that the cell has been clicked
-$(".grid-cell").click(function () {
+$(document).bind("contextmenu",function(e){
+    return false;
+});
+
+$(".grid-cell").mousedown(function () {
+    console.log("type: ", event.which);
+    event.preventDefault();
     var row = $(this).parent().attr('row-num');
     var col = $(this).attr('col-num');
-    // add flag type later idk
-    const obj = { "row": row, "col": col, "type": "click" }
-    // console.log(row, col)
-    addPoint("/add-point", obj)
+    if(event.which == 1){
+        // add flag type later idk
+        const obj = { "row": row, "col": col, "type": "click" }
+        // console.log(row, col)
+        addPoint("/add-point", obj)
+    }
+    else{
+        console.log("flag me");
+        flagCell(row, col);
+    }
+    
 });
