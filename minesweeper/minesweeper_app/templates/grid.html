@@ -7,29 +7,16 @@
 <h1>bomb: {{bomb}}</h1>
 
 <div class="grid-container" >
-{% comment %} {% for i in row_len %}
-    <div class="grid-row">
-        {% for j in col_len %}
-            <div class="grid-cell">{{ key[i][j] }}</div>
-        {% endfor %}
-    </div>
-{% endfor %} {% endcomment %}
-
 {% for i in user_map %}
-    <div class="grid-row">
+    <div row-num = {{ forloop.counter0 }} class="grid-row">
         {% for j in i %}
-            <div class="grid-cell">{{ j }}</div>
-            {% comment %} {% if j %}
-                <div class="grid-cell">{{ j }}</div>
-            {% else %}
-                <div class="grid-cell">--</div>
-            {% endif %} {% endcomment %}
+            <div col-num = {{ forloop.counter0 }} class="grid-cell">{{ j }}</div>
         {% endfor %}
     </div>
 {% endfor %}
 </div>
-  
 
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="{% static './index.js' %}"></script>
 
 {% endblock %}
