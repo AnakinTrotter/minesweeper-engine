@@ -50,15 +50,11 @@ def set_col(c):
     col = c
 def set_bomb(b):
     global bomb
-<<<<<<< HEAD
     bomb = b 
-
-=======
-    bomb = b
 def set_tiles_revealed(t):
     global tiles_revealed
     tiles_revealed = t
->>>>>>> aa405904eb4341245865c60af1fe9d3e9eb24ccb
+
 def display_key():
     for i in range(len(key)):
         for j in range(len(key[i])):
@@ -123,11 +119,8 @@ def generate_bombs(bomb):
 def generate_grid(row, col, bomb):
     global key
     global user_map
-<<<<<<< HEAD
     global flag_map
     # create grid with zeroes
-=======
->>>>>>> aa405904eb4341245865c60af1fe9d3e9eb24ccb
     key = np.zeros((row, col))
     user_map =  np.zeros((row, col), dtype=bool)
     flag_map = np.zeros((row, col), dtype=bool)
