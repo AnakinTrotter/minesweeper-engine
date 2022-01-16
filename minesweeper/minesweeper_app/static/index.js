@@ -1,35 +1,44 @@
 // rerenders the grid depending on the game status
-function renderGrid(arr) {
+function renderGrid(arr, finish) {
     let i = 0;
     let j = 0;
+    console.log(arr);
     $(".grid-container").children()
         .each(function () {
             $(this).children()
                 .each(function () {
-                    if($(this).text() != "🚩"){
+                    if (finish){
+                        $(this).text(arr[i][j]);
+                    }
+                    if ($(this).text() != "🚩") {
                         $(this).text(arr[i][j]);
                     }
                     j++;
                 })
             i++;
-            j=0;
+            j = 0;
         });
 }
 
-function flagCell(row, col){
+function flagCell(row, col) {
     let cell = $(".grid-container").find(`[row-num ='${row}']`).find(`[col-num ='${col}']`)
-    if(cell.text()=="🚩"){
-        cell.text("-")
+    if (cell.text() == "🚩") {
+        cell.text("-");
+        cell.on("click");
     }
-    else{
+    else {
         cell.text("🚩");
+        cell.on('click', function(e){
+            e.preventDefault();
+            return false;
+        });
     }
-    
+
 }
-function replaceBomb(arr){
+function replaceBomb(arr) {
     for (let i = 0; i < arr.length; i++) {
-        for(let j = 0; j< arr[i].length; j++){
-            if(arr[i][j] == "-"){
+        for (let j = 0; j < arr[i].length; j++) {
+            if (arr[i][j] == "-") {
                 arr[i][j] = "💣";
             }
         }
@@ -50,24 +59,24 @@ async function addPoint(url, data) {
         let res = await response.json();
         console.log(res);
         let grid = res.user_map;
-        if(res.game_over){
-            if(!res.win)
+        if (res.game_over) {
+            if (!res.win)
                 alert("Game Over: L");
-            else
-            {
+            else {
                 alert("Nice");
-                replaceBomb(grid);
+                grid = replaceBomb(grid);
             }
+            
             $('.grid-cell').off('click');
-            // make play again button visible 
+            
         }
-        renderGrid(grid);
+        renderGrid(grid, res.game_over);
     } catch (error) {
         console.log(error)
     }
 }
 
-$(document).bind("contextmenu",function(e){
+$(document).bind("contextmenu", function (e) {
     return false;
 });
 
@@ -76,15 +85,15 @@ $(".grid-cell").mousedown(function () {
     event.preventDefault();
     var row = $(this).parent().attr('row-num');
     var col = $(this).attr('col-num');
-    if(event.which == 1){
+    if (event.which == 1) {
         // add flag type later idk
         const obj = { "row": row, "col": col, "type": "click" }
         // console.log(row, col)
         addPoint("/add-point", obj)
     }
-    else{
+    else {
         console.log("flag me");
         flagCell(row, col);
     }
-    
+
 });
