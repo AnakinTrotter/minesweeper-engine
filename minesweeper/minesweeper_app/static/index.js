@@ -1,21 +1,49 @@
 // rerenders the grid depending on the game status
-function renderGrid(arr) {
+function renderGrid(arr, finish) {
     let i = 0;
     let j = 0;
+    console.log(arr);
     $(".grid-container").children()
         .each(function () {
             $(this).children()
                 .each(function () {
-                    console.log(i, j);
-                    var row = $(this).parent().attr('row-num');
-                    var col = $(this).attr('col-num');
-                    console.log("id:  ", row, col)
-                    $(this).text(arr[i][j]);
+                    if (finish){
+                        $(this).text(arr[i][j]);
+                    }
+                    if ($(this).text() != "🚩") {
+                        $(this).text(arr[i][j]);
+                    }
                     j++;
                 })
             i++;
-            j=0;
+            j = 0;
         });
+}
+
+function flagCell(row, col) {
+    let cell = $(".grid-container").find(`[row-num ='${row}']`).find(`[col-num ='${col}']`)
+    if (cell.text() == "🚩") {
+        cell.text("-");
+        cell.on("click");
+    }
+    else {
+        cell.text("🚩");
+        cell.on('click', function(e){
+            e.preventDefault();
+            return false;
+        });
+    }
+
+}
+function replaceBomb(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        for (let j = 0; j < arr[i].length; j++) {
+            if (arr[i][j] == "-") {
+                arr[i][j] = "💣";
+            }
+        }
+    }
+    return arr;
 }
 
 // post method to let the server know the point has been clicked
@@ -30,26 +58,42 @@ async function addPoint(url, data) {
         });
         let res = await response.json();
         console.log(res);
-
-        if(data.game_over){
-            if(!data.win)
+        let grid = res.user_map;
+        if (res.game_over) {
+            if (!res.win)
                 alert("Game Over: L");
-            else
+            else {
                 alert("Nice");
-             // maybe make a call for the key here
+                grid = replaceBomb(grid);
+            }
+            
+            $('.grid-cell').off('click');
+            
         }
-        renderGrid(res.user_map);
+        renderGrid(grid, res.game_over);
     } catch (error) {
         console.log(error)
     }
 }
 
-// onClick handler for each cell, will create server call to tell the server that the cell has been clicked
-$(".grid-cell").click(function () {
+$(document).bind("contextmenu", function (e) {
+    return false;
+});
+
+$(".grid-cell").mousedown(function () {
+    console.log("type: ", event.which);
+    event.preventDefault();
     var row = $(this).parent().attr('row-num');
     var col = $(this).attr('col-num');
-    // add flag type later idk
-    const obj = { "row": row, "col": col, "type": "click" }
-    console.log(row, col)
-    addPoint("/add-point", obj)
+    if (event.which == 1) {
+        // add flag type later idk
+        const obj = { "row": row, "col": col, "type": "click" }
+        // console.log(row, col)
+        addPoint("/add-point", obj)
+    }
+    else {
+        console.log("flag me");
+        flagCell(row, col);
+    }
+
 });

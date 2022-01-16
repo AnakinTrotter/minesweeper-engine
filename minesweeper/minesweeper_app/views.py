@@ -20,6 +20,7 @@ def gen_grid(request):
     game.set_row(row)
     game.set_col(col)
     game.set_bomb(bomb)
+    game.set_tiles_revealed(0)
     game.generate_grid(row, col, bomb)
     user_map = game.get_user_map()
     args = {
@@ -34,11 +35,19 @@ def gen_grid(request):
 @csrf_exempt 
 def add_point(request):
     var = json.loads(request.body.decode("utf-8"))
-    game_over = not game.check_guess(int(var.get("row")), int(var.get("col")))
+    row = int(var.get("row"))
+    col = int(var.get("col"))
+    game_over = not game.check_guess(row, col)
+    # first check to see if its the first point clicked, if so you would generate the grid until you get a good one
+    if game.get_tiles_revealed() == 0:
+        while game_over:
+            game.generate_grid(game.get_row(), game.get_col(), game.get_bomb())
+            game_over = not game.check_guess(row, col)
     win = False
     if not game_over:
         game_over = game.check_win()
-        win = True
+        if game_over:
+            win = True
     args = {
         "user_map": game.get_user_map().tolist(),
         "game_over": game_over,
