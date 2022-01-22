@@ -27,11 +27,13 @@ function flagCell(row, col) {
         cell.on("click");
     }
     else {
-        cell.text("🚩");
-        cell.on('click', function(e){
-            e.preventDefault();
-            return false;
-        });
+        if(cell.text() == "-"){
+            cell.text("🚩");
+            cell.on('click', function(e){
+                e.preventDefault();
+                return false;
+            });
+        }
     }
 
 }
