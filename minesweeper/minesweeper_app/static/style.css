@@ -24,3 +24,27 @@
     /* background-color: red; */
     aspect-ratio: 1;
 }
+
+#start-screen{
+    width: 100%;
+    padding-top: 15%;
+    margin: auto;
+}
+
+#start-screen div {
+    display: flex;
+    justify-content: center;
+    align-content: space-between;
+    padding: 15px;
+    width: 100%;
+}
+#start-screen div p{
+    width: 10%;
+}
+#centered-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+}
